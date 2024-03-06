@@ -105,8 +105,9 @@ const playNote = ({
   const midiChannel = channel.toString(16);
   const noteOn = parseInt(`0x9${midiChannel}`, 16);
   const noteOff = parseInt(`0x8${midiChannel}`, 16);
-  port.send([noteOn, noteNumber, accent ? 127 : 63], time);
-  port.send([noteOff, noteNumber, 0], time + len);
+  const currentTime = window.performance.now();
+  port.send([noteOn, noteNumber, accent ? 127 : 63], currentTime);
+  port.send([noteOff, noteNumber, 0], currentTime + len * 1000);
   return;
 };
 
