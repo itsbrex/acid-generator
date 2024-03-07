@@ -23,18 +23,20 @@ import {
   setSpread,
 } from './store/generator';
 import {
-  addMidiOutput,
   deletePattern,
   loadPattern,
   selectOutput,
   setMidiChannel,
-  setMidiInterface,
   setScale,
   shiftPattern,
   storePattern,
 } from './store/sequencer';
 import { type State } from './store';
 import { DIRECTION } from './types';
+import {
+  getMidiAccess,
+  midiStateChangeEventListener,
+} from './audio-engine/midi-output.ts';
 
 import styles from './App.module.less';
 
@@ -44,21 +46,6 @@ import about from '../README.md?raw';
 const App: FC = () => {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const getMidi = async () => {
-      try {
-        const midi = await window.navigator.requestMIDIAccess();
-        dispatch(setMidiInterface(midi));
-        midi.outputs.forEach((port) => {
-          dispatch(addMidiOutput({ port, selected: false, channel: 0 }));
-        });
-      } catch (e) {
-        console.error(e);
-      }
-    };
-    void getMidi();
-  }, [dispatch]);
-
   const {
     transport: { currentStep, tempo, playing },
     sequencer: {
@@ -67,7 +54,7 @@ const App: FC = () => {
       name,
       storedPatterns,
       options: {
-        output: { outputs },
+        output: { outputs, midi },
       },
     },
     generator: {
@@ -82,6 +69,18 @@ const App: FC = () => {
   } = useSelector((state: State) => {
     return state;
   });
+
+  useEffect(() => {
+    void getMidiAccess();
+  }, []);
+
+  useEffect(() => {
+    midi?.addEventListener('statechange', midiStateChangeEventListener);
+    return () => {
+      console.info('remove listener');
+      midi?.removeEventListener('statechange', midiStateChangeEventListener);
+    };
+  }, [midi]);
 
   const handleGenerateClick = useCallback(() => {
     generatePattern();

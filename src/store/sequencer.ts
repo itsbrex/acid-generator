@@ -56,6 +56,7 @@ interface Reducers extends SliceCaseReducers<State> {
   deletePattern: CaseReducer<State, PayloadAction<number>>;
   setMidiInterface: CaseReducer<State, PayloadAction<MIDIAccess>>;
   addMidiOutput: CaseReducer<State, PayloadAction<SequencerOutput>>;
+  removeMidiOutput: CaseReducer<State, PayloadAction<SequencerOutput>>;
   selectOutput: CaseReducer<State, PayloadAction<string | undefined>>;
   setMidiChannel: CaseReducer<State, PayloadAction<{ id: string; channel: number }>>;
 }
@@ -154,6 +155,25 @@ const slice = createSlice<State, Reducers>({
         },
       };
     },
+    removeMidiOutput: (state, { payload }) => {
+      const {
+        options,
+        options: { output },
+        options: {
+          output: { outputs },
+        },
+      } = state;
+      return {
+        ...state,
+        options: {
+          ...options,
+          output: {
+            ...output,
+            outputs: outputs.filter((output) => output.port.id !== payload.port.id),
+          },
+        },
+      };
+    },
     selectOutput: (state, { payload }) => {
       const {
         options,
@@ -224,6 +244,7 @@ const {
     setMidiInterface,
     selectOutput,
     setMidiChannel,
+    removeMidiOutput,
   },
   reducer,
 } = slice;
@@ -241,6 +262,7 @@ export {
   setMidiInterface,
   selectOutput,
   setMidiChannel,
+  removeMidiOutput,
 };
 export type { State as SequencerState };
 export default reducer;
