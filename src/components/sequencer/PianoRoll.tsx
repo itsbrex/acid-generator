@@ -1,10 +1,17 @@
-import { type FC } from 'react';
+import { type FC, useCallback } from 'react';
 import { type SequenceStep } from '../../audio-engine/generator';
 import { type SCALE } from '../../audio-engine/scales';
 import PatternStep from './PatternStep';
 
 import styles from './PianoRoll.module.less';
 import { editNoteInPattern, switchToNextStep } from '../../audio-engine/editors';
+
+// Trigger haptic feedback for touch devices
+const triggerHaptic = () => {
+  if (navigator.vibrate) {
+    navigator.vibrate(10);
+  }
+};
 
 interface Props {
   pattern: SequenceStep[];
@@ -13,6 +20,30 @@ interface Props {
 }
 
 const PianoRoll: FC<Props> = ({ pattern, currentStep, scaleName }) => {
+  const handleOctaveClick = useCallback(
+    (i: number) => {
+      triggerHaptic();
+      switchToNextStep('octave', pattern, i);
+    },
+    [pattern],
+  );
+
+  const handleSlideClick = useCallback(
+    (i: number) => {
+      triggerHaptic();
+      switchToNextStep('slide', pattern, i);
+    },
+    [pattern],
+  );
+
+  const handleAccentClick = useCallback(
+    (i: number) => {
+      triggerHaptic();
+      switchToNextStep('accent', pattern, i);
+    },
+    [pattern],
+  );
+
   return (
     <ul className={styles.pattern}>
       <li className={styles.step}>
@@ -52,19 +83,19 @@ const PianoRoll: FC<Props> = ({ pattern, currentStep, scaleName }) => {
                 />
               </li>
               <li
-                onClick={() => switchToNextStep('octave', pattern, i)}
+                onClick={() => handleOctaveClick(i)}
                 className={`${styles.cell} ${
                   octave === 1 ? styles.octaveUp : octave === -1 ? styles.octaveDown : ''
                 } ${styles.canEdit}`}
               />
               <li
-                onClick={() => switchToNextStep('slide', pattern, i)}
+                onClick={() => handleSlideClick(i)}
                 className={`${styles.cell} ${slide ? styles.slide : ''} ${
                   styles.canEdit
                 }`}
               />
               <li
-                onClick={() => switchToNextStep('accent', pattern, i)}
+                onClick={() => handleAccentClick(i)}
                 className={`${styles.cell} ${accent ? styles.accent : ''} ${
                   styles.canEdit
                 }`}

@@ -63,3 +63,20 @@
 @blue--30: #9acbfc;
 @blue--20: #c8e3fe;
 @blue--10: #ebf5fe;
+
+:root {
+  --bg-primary: @gray--100;
+  --bg-secondary: #1c1c1e;
+  --bg-tertiary: @gray--90;
+  --text-primary: @gray--10;
+  --text-secondary: @gray--30;
+  --accent-primary: @emerald--40;
+  --accent-secondary: @emerald--60;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #000000; // True black for OLED
+    --bg-secondary: #1c1c1e;
+  }
+}

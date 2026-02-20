@@ -1,5 +1,6 @@
-import { type FC, useCallback, useEffect } from 'react';
+import { type FC, useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { start } from 'tone';
 import {
   changeCutoff,
   changeDelaySend,
@@ -37,6 +38,7 @@ import {
   getMidiAccess,
   midiStateChangeEventListener,
 } from './audio-engine/midi-output.ts';
+import { isIOS } from './utils';
 
 import styles from './App.module.less';
 
@@ -69,6 +71,43 @@ const App: FC = () => {
   } = useSelector((state: State) => {
     return state;
   });
+
+  const audioUnlockedRef = useRef(false);
+
+  /**
+   * iOS Safari requires a user gesture (touch/click) to unlock the Web Audio API.
+   * This effect adds a one-time touch listener that calls Tone.start() on first
+   * user interaction, ensuring audio is unlocked for subsequent playback.
+   */
+  useEffect(() => {
+    if (!isIOS() || audioUnlockedRef.current) return;
+
+    const unlockAudio = (): void => {
+      if (audioUnlockedRef.current) return;
+      void start()
+        .then(() => {
+          audioUnlockedRef.current = true;
+          // Remove listeners after successful unlock
+          document.removeEventListener('touchstart', unlockAudio);
+          document.removeEventListener('touchend', unlockAudio);
+          document.removeEventListener('click', unlockAudio);
+        })
+        .catch((e) => {
+          console.error('Failed to unlock audio:', e);
+        });
+    };
+
+    // Listen for first touch/click to unlock audio
+    document.addEventListener('touchstart', unlockAudio, { once: true });
+    document.addEventListener('touchend', unlockAudio, { once: true });
+    document.addEventListener('click', unlockAudio, { once: true });
+
+    return () => {
+      document.removeEventListener('touchstart', unlockAudio);
+      document.removeEventListener('touchend', unlockAudio);
+      document.removeEventListener('click', unlockAudio);
+    };
+  }, []);
 
   useEffect(() => {
     void getMidiAccess();

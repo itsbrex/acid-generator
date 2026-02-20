@@ -1,6 +1,16 @@
 import { MonoSynth, PingPongDelay, Split, Volume } from 'tone';
 import { store } from '../store';
 
+/**
+ * TB-303 style MonoSynth configuration.
+ *
+ * iOS Web Audio API Considerations:
+ * - The AudioContext created by Tone.js may start in a "suspended" state on iOS Safari
+ * - Audio unlock is handled in App.tsx via a first-touch event listener that calls start()
+ * - Visibility change handling in controls.ts pauses/resumes playback when app is backgrounded
+ * - The synth itself doesn't need special iOS handling - it's managed at the context level
+ */
+
 const {
   synth: { cutoff, resonance, delaySend },
 } = store.getState();

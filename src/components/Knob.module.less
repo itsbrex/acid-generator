@@ -32,20 +32,57 @@
     }
 
     .svgWrapper {
+      // Larger touch target for mobile - padding creates touchable area around knob
+      padding: 0.5rem;
+      margin: -0.5rem;
+      border-radius: 50%;
+      transition: box-shadow 0.15s ease-out;
+
       svg {
         width: 5rem;
         height: 5rem;
         display: block;
         margin: auto;
+        touch-action: none; // Prevent browser gestures interfering with knob
+
+        // Mobile: ensure minimum 4rem size for touch
+        @media (max-width: 768px), (pointer: coarse) {
+          min-width: 4rem;
+          min-height: 4rem;
+        }
 
         path {
           fill: rgba(0, 0, 0, 0);
           stroke-width: 12;
           stroke: @emerald--50;
+          // GPU acceleration for 120Hz ProMotion displays
+          will-change: transform;
+          transform: translateZ(0); // Force GPU layer
 
           &:first-of-type {
             stroke: @emerald--10;
           }
+        }
+      }
+
+      // Active state glow when touching
+      &.active {
+        box-shadow: 0 0 20px fade(@emerald--50, 50%);
+      }
+    }
+  }
+}
+
+// Reduced motion support for accessibility
+@media (prefers-reduced-motion: reduce) {
+  &.knobWrapper {
+    label {
+      .svgWrapper {
+        transition: none !important;
+
+        svg path {
+          transition: none !important;
+          animation: none !important;
         }
       }
     }

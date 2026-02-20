@@ -1,5 +1,32 @@
 @import "../../styles/mixins";
+@import "../../colors";
+
+.outputContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 
 .outputSelector {
   .select
+}
+
+.bluetoothButton {
+  font-size: 1.4rem;
+  color: @emerald--40;
+  background-color: transparent;
+  border: 1px solid @emerald--30;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: @emerald--90;
+    color: @emerald--30;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }
