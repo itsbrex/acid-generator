@@ -80,6 +80,9 @@
   margin-bottom: 1rem;
   position: relative;
   overflow: visible;
+  touch-action: pan-x pan-y;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 .key {
@@ -87,6 +90,7 @@
   border: none;
   border-bottom: 1px solid @gray--60;
   position: relative;
+  touch-action: manipulation;
 
   &.white, &.black {
     &::before {
@@ -114,6 +118,9 @@
 
   &.active {
     .keyboardNames();
+    // GPU acceleration for 120Hz ProMotion displays
+    will-change: transform, box-shadow;
+    transform: translateZ(0); // Force GPU layer
 
     &::before {
       box-shadow: inset 0 0 4px 0 rgba(@emerald--80, 0.5);
@@ -153,5 +160,23 @@
 
   &.inkey {
     background-color: rgba(@yellow--40, 0.5);
+  }
+}
+
+// Mobile touch optimizations - Apple HIG recommends 44pt minimum touch targets
+@media (max-width: 768px), (pointer: coarse) {
+  .key {
+    height: 2.75rem; // ~44px for touch-friendly targets
+    min-height: 44px;
+  }
+}
+
+// Reduced motion support for accessibility
+@media (prefers-reduced-motion: reduce) {
+  .key {
+    &.active {
+      transition: none !important;
+      animation: none !important;
+    }
   }
 }

@@ -10,4 +10,16 @@ export default defineConfig({
   assetsInclude: ['**/*.md'],
   plugins: [react(), eslint({ fix: true })],
   base: '',
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          audio: ['tone', '@tonejs/midi'],
+          vendor: ['react', 'react-dom', 'react-redux', '@reduxjs/toolkit'],
+          music: ['tonal'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 500,
+  },
 });

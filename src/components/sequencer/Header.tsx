@@ -1,8 +1,14 @@
-import { type FC } from 'react';
+import { type FC, type KeyboardEvent } from 'react';
 import { DownloadIcon, SaveIcon, ShiftLeftIcon, ShiftRightIcon } from '../Icons';
 import Button from '../Button';
 
 import styles from './Header.module.less';
+
+const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+  if (e.key === 'Enter') {
+    e.currentTarget.blur();
+  }
+};
 
 interface Props {
   name: string;
@@ -21,7 +27,15 @@ const Header: FC<Props> = ({
 }) => {
   return (
     <>
-      <input type="text" value={name} readOnly className={styles.header} />
+      <input
+        type="text"
+        value={name}
+        readOnly
+        className={styles.header}
+        inputMode="text"
+        enterKeyHint="done"
+        onKeyDown={handleKeyDown}
+      />
       <aside>
         <menu className={styles.toolbar}>
           <li>

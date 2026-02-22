@@ -2,6 +2,7 @@ import {
   type ChangeEvent,
   type FC,
   type FormEvent,
+  type KeyboardEvent,
   type MouseEvent as ReactMouseEvent,
   useCallback,
   useEffect,
@@ -111,13 +112,14 @@ interface Props {
   onChange: (v: number) => void;
 }
 
-const Knob: FC<Omit<Props, 'defaultValue'>> = ({
+const Knob: FC<Props> = ({
   value,
   min,
   max,
   onChange,
   direction,
   step,
+  defaultValue,
 }) => {
   const { rangePath: rP, valuePath: vP } = useMemo(() => {
     const rangePath = describeArc(mid, mid, radius, 0, 300, 120);
@@ -132,6 +134,12 @@ const Knob: FC<Omit<Props, 'defaultValue'>> = ({
 
     return { rangePath, valuePath };
   }, [value, min, max]);
+
+  // Track active touch state for CSS styling
+  const [isActive, setIsActive] = useState(false);
+
+  // Double-tap detection for reset to default
+  const lastTapRef = useRef<number>(0);
 
   const handleMouseDown = useCallback(
     (e: ReactMouseEvent) => {
@@ -173,35 +181,71 @@ const Knob: FC<Omit<Props, 'defaultValue'>> = ({
       const refWrap = wrapper.current;
       const touchStartHandler = (e: TouchEvent) => {
         e.preventDefault();
+        setIsActive(true);
+
+        // Double-tap detection for reset to default
+        const now = Date.now();
+        if (now - lastTapRef.current < 300) {
+          // Double-tap detected - reset to default value
+          onChange(defaultValue);
+          lastTapRef.current = 0;
+          setIsActive(false);
+          return;
+        }
+        lastTapRef.current = now;
+
         const {
-          touches: [{ pageX: startX, pageY: startY }],
+          touches: [{ pageY: startY }],
         } = e;
+
+        // Track last Y position for fine-tune mode calculation
+        let lastY = startY;
+        let currentVal = value;
+
         const touchMoveHandler = (e: TouchEvent) => {
           e.preventDefault();
 
           const {
-            touches: [{ pageX, pageY }],
+            touches: [{ pageY }],
           } = e;
-          onChange(
-            calculateValue(
-              startX,
-              startY,
-              pageX,
-              pageY,
-              step,
-              min,
-              max,
-              value,
-              direction,
-            ),
-          );
+
+          // Calculate delta from last position for fine-tune detection
+          const deltaY = Math.abs(pageY - lastY);
+
+          // Fine-tune mode: use 0.2x sensitivity for slow drags (deltaY < 3px)
+          const sensitivity = deltaY < 3 ? 0.2 : 1;
+          const adjustedStep = step * sensitivity;
+
+          // Always use vertical drag for touch (iOS synth app standard)
+          // Drag UP = increase, Drag DOWN = decrease
+          const delta = (lastY - pageY) * adjustedStep;
+          let newValue = currentVal + delta;
+
+          // Clamp to min/max
+          newValue = Math.max(min, Math.min(max, newValue));
+
+          // Haptic feedback at boundaries
+          if (
+            (newValue === min && currentVal !== min) ||
+            (newValue === max && currentVal !== max)
+          ) {
+            navigator.vibrate?.(10);
+          }
+
+          currentVal = newValue;
+          lastY = pageY;
+          onChange(newValue);
         };
+
         const touchEndHandler = () => {
+          setIsActive(false);
           refWrap.removeEventListener('touchmove', touchMoveHandler);
           refWrap.removeEventListener('touchend', touchEndHandler);
+          refWrap.removeEventListener('touchcancel', touchEndHandler);
         };
 
         refWrap.addEventListener('touchend', touchEndHandler);
+        refWrap.addEventListener('touchcancel', touchEndHandler);
         refWrap.addEventListener('touchmove', touchMoveHandler);
       };
       refWrap.addEventListener('touchstart', touchStartHandler, {
@@ -211,10 +255,10 @@ const Knob: FC<Omit<Props, 'defaultValue'>> = ({
         refWrap.removeEventListener('touchstart', touchStartHandler);
       };
     }
-  }, [value, min, max, direction, onChange, step]);
+  }, [value, min, max, direction, onChange, step, defaultValue]);
 
   return (
-    <div className={styles.svgWrapper}>
+    <div className={`${styles.svgWrapper} ${isActive ? styles.active : ''}`}>
       <svg onMouseDown={handleMouseDown} viewBox="0 0 100 100" ref={wrapper}>
         <path d={rP}></path>
         <path d={vP}></path>
@@ -260,6 +304,12 @@ const KnobComponent: FC<Props & { label: string }> = ({
     [setInputVal],
   );
 
+  const handleInputKeyDown = useCallback((e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.currentTarget.blur();
+    }
+  }, []);
+
   const wrapper = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -290,6 +340,7 @@ const KnobComponent: FC<Props & { label: string }> = ({
           step={step}
           onChange={handleKnobChange}
           direction={direction}
+          defaultValue={defaultValue}
         />
         <input
           type="number"
@@ -298,6 +349,10 @@ const KnobComponent: FC<Props & { label: string }> = ({
           max={max}
           step={step}
           onChange={handleInputChange}
+          onKeyDown={handleInputKeyDown}
+          inputMode="numeric"
+          pattern="[0-9]*"
+          enterKeyHint="done"
         />
       </label>
     </form>

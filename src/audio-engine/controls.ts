@@ -1,4 +1,4 @@
-import { Frequency, start, Time, Transport } from 'tone';
+import { context, Frequency, start, Time, Transport } from 'tone';
 import { Midi } from '@tonejs/midi';
 import dockerNames from 'docker-names-ts';
 import { store } from '../store';
@@ -8,10 +8,50 @@ import { setPlaying, setStep, setTempo } from '../store/transport';
 import { setCutoff, setDelaySend, setResonance } from '../store/synth';
 import { generate } from './generator';
 import { delaySend, tb303 } from './synth';
-import { getNoteInScale, getOutput } from '../utils';
+import { getNoteInScale, getOutput, isIOS } from '../utils';
 import { type Pattern, type SequencerOutput } from '../types';
 
 const { dispatch } = store;
+
+/**
+ * iOS Safari suspends the AudioContext when the app is backgrounded.
+ * This handler pauses playback when the page becomes hidden and resumes
+ * the AudioContext when the page becomes visible again.
+ */
+let wasPlayingBeforeHidden = false;
+
+const handleVisibilityChange = (): void => {
+  if (document.hidden) {
+    // Page is being hidden - pause transport if playing
+    const { transport } = store.getState();
+    wasPlayingBeforeHidden = transport.playing;
+    if (transport.playing) {
+      Transport.pause();
+    }
+  } else {
+    // Page is becoming visible - resume AudioContext if suspended
+    if (context.state === 'suspended') {
+      void context.resume().catch((e) => {
+        console.error('Failed to resume AudioContext:', e);
+      });
+    }
+    // Resume playback if it was playing before being hidden
+    if (wasPlayingBeforeHidden && !Transport.state.startsWith('start')) {
+      void start()
+        .then(() => {
+          Transport.start();
+        })
+        .catch((e) => {
+          console.error('Failed to resume Transport:', e);
+        });
+    }
+  }
+};
+
+// Initialize visibility change listener for iOS audio handling
+if (isIOS()) {
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+}
 
 const {
   transport: { tempo },
