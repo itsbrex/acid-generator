@@ -14,9 +14,9 @@ Rationale behind is that as i am mainly web developer i wanted to create prototy
 as plugin for [**Mod Dwarf**](https://mod.audio/dwarf/)
 Main focus is on generating the sequence not the 303 sound.
 
-[Live demo](https://drakh.github.io/acid-generator/)
+[Live demo](https://itsbrex.github.io/acid-generator/)
 
-[Repository](https://github.com/drakh/acid-generator)
+[Repository](https://github.com/itsbrex/acid-generator) (forked from [drakh/acid-generator](https://github.com/drakh/acid-generator))
 
 ## USAGE
 
