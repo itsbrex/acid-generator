@@ -10,6 +10,8 @@
     display: flex;
     flex-direction: column;
     color: @emerald--50;
+    font-size: 0.75rem;
+    text-align: center;
 
     input {
       outline: none;
@@ -45,10 +47,12 @@
         margin: auto;
         touch-action: none; // Prevent browser gestures interfering with knob
 
-        // Mobile: ensure minimum 4rem size for touch
+        // Mobile: smaller knobs that fit the grid
         @media (max-width: 768px), (pointer: coarse) {
-          min-width: 4rem;
-          min-height: 4rem;
+          min-width: 3.5rem;
+          min-height: 3.5rem;
+          width: 3.5rem;
+          height: 3.5rem;
         }
 
         path {
@@ -68,6 +72,20 @@
       // Active state glow when touching
       &.active {
         box-shadow: 0 0 20px fade(@emerald--50, 50%);
+      }
+    }
+  }
+}
+
+// Mobile knob label sizing
+@media (max-width: 768px) {
+  &.knobWrapper {
+    label {
+      font-size: 0.6rem;
+
+      input {
+        padding: 0.25rem;
+        font-size: 0.7rem;
       }
     }
   }

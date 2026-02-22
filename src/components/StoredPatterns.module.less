@@ -48,3 +48,41 @@
     }
   }
 }
+
+@media (max-width: 768px) {
+  .header {
+    font-size: 1.2rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid @emerald--80;
+    margin-bottom: 0.5rem;
+  }
+
+  .list {
+    padding: 0.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+
+    & li {
+      margin-bottom: 0;
+      padding: 0.5rem;
+      border: 1px solid @emerald--80;
+      border-radius: 4px;
+
+      main {
+        font-size: 1rem;
+      }
+
+      header {
+        button {
+          margin: 0.25rem;
+
+          svg {
+            width: 1.5rem;
+            height: 1.5rem;
+          }
+        }
+      }
+    }
+  }
+}

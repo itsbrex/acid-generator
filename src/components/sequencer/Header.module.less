@@ -30,9 +30,23 @@
 .toolbar {
   display: flex;
   flex-direction: row-reverse;
+  flex-wrap: wrap;
 
   li {
     list-style: none;
     padding: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    font-size: 1.2rem;
+    line-height: 1.4rem;
+  }
+
+  .toolbar {
+    li {
+      padding: 0.25rem;
+    }
   }
 }

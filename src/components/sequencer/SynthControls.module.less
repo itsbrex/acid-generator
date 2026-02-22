@@ -1,5 +1,6 @@
 .synthControls {
   display: flex;
+  flex-wrap: wrap;
 
   label {
     font-weight: bold;
@@ -10,5 +11,16 @@
     margin: 0;
     list-style: none;
     margin-left: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .synthControls {
+    justify-content: center;
+    gap: 0.25rem;
+
+    li {
+      margin-left: 0;
+    }
   }
 }
