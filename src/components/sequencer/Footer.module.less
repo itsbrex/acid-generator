@@ -1,9 +1,23 @@
 .sequencerFooter {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 
   label {
     &:last-of-type {
       margin-left: auto;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .sequencerFooter {
+    flex-direction: column;
+
+    label {
+      &:last-of-type {
+        margin-left: 0;
+      }
     }
   }
 }

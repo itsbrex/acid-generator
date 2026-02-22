@@ -2,6 +2,7 @@
 
 .playControls {
   display: flex;
+  align-items: center;
 
   button {
     min-width: 8rem;
@@ -15,5 +16,15 @@
     border-radius: 4px;
     color: @emerald--20;
     box-shadow: inset 0 0 4px 0px rgba(@emerald--90, 0.9);
+  }
+}
+
+@media (max-width: 768px) {
+  .playControls {
+    button {
+      min-width: 4rem;
+      min-height: 3rem;
+      margin-right: 0.5rem;
+    }
   }
 }
