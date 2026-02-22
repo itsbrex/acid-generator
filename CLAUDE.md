@@ -6,7 +6,7 @@ This document provides guidance for AI assistants working with the ACID Pattern 
 
 The ACID Pattern Generator is a web-based music sequencer for creating TB-303-style acid house sequences. Inspired by "STING by SKINNERBOX" Max for Live device, it features algorithmic pattern generation with interactive editing.
 
-**Live demo:** https://drakh.github.io/acid-generator/
+**Live demo:** https://itsbrex.github.io/acid-generator/
 
 ### Key Features
 - Generative pattern sequencer with density, spread, accents, and slides controls
