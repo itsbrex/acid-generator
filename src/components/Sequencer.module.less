@@ -38,19 +38,25 @@
 // Mobile: reduce piano roll height, better scroll UX
 @media (max-width: 768px) {
   .sequencer {
+    width: 100%;
+    max-width: 100%;
+
     main {
       height: 16rem;
       border-radius: 4px;
       border: 1px solid rgba(67, 187, 153, 0.2);
 
       div {
-        min-width: 40rem;
+        min-width: 32rem;
       }
     }
 
     footer {
+      width: 100%;
+
       section {
         margin-bottom: 0.5rem;
+        flex-wrap: wrap;
       }
     }
   }
